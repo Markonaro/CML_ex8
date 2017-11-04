@@ -8,14 +8,14 @@ function [J, grad] = cofiCostFunc(params, Y, R, num_users, num_movies, ...
 
 % Unfold the U and W matrices from params
 X = reshape(params(1:num_movies*num_features), num_movies, num_features);
-Theta = reshape(params(num_movies*num_features+1:end), ...
+Th = reshape(params(num_movies*num_features+1:end), ...
                 num_users, num_features);
 
             
 % You need to return the following values correctly
 J = 0;
-X_grad = zeros(size(X));
-Theta_grad = zeros(size(Theta));
+dX = zeros(size(X));
+dTh = zeros(size(Th));
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: Compute the cost function and gradient for collaborative
@@ -49,13 +49,27 @@ Theta_grad = zeros(size(Theta));
 %     end
 % end
 
-J =    0.5 * sum(sum(  (R.*(X*Theta') - Y).^2  ));
+J =    0.5 * sum(sum(  (R.*(X*Th') - Y).^2  ));
 
-X_grad =     sum(sum(  (R.*(X*Theta') - Y) .* (R.*X)  ));
-Theta_grad = sum(sum(  (R.*(X*Theta') - Y) .* (R.*Theta)  ));
+for i = 1:num_movies
+   for j = 1:num_users
+       
+       if R(i, j) == 1
+            dX(i, :) = sum((X(i, :)*Th(j, :)' - Y(i, j)) * X(i, :)); 
+            dTh(j, :) = sum((X(i, :)*Th(j, :)' - Y(i, j)) * Th(j, :));
+       end
+       
+   end
+end
+
+dX
+dTh
+
+% X_grad =     sum(sum(  (R.*(X*Theta') - Y) .* (R.*X)  ));
+% Theta_grad = sum(sum(  (R.*(X*Theta') - Y) .* (R.*Theta)  ));
 
 % =============================================================
 
-grad = [X_grad(:); Theta_grad(:)];
+grad = [dX(:); dTh(:)];
 
 end
