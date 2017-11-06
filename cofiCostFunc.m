@@ -40,7 +40,7 @@ dTh = zeros(size(Th));
 %                     partial derivatives w.r.t. to each element of Theta
 %
 
-% Conceptual but slow using 'for' loops 
+% "For" conceptual purposes only
 % for i = 1:num_movies
 %     for j = 1:num_users
 %         if R(i, j) == 1
@@ -49,24 +49,15 @@ dTh = zeros(size(Th));
 %     end
 % end
 
-J =    0.5 * sum(sum(  (R.*(X*Th') - Y).^2  ));
+J = sum(sum(  R.*((X*Th' - Y).^2)  ));
+J = J + lambda*(sum(sum(Th.^2)) + sum(sum(X.^2)));
+J = J/2;
 
-for i = 1:num_movies
-   for j = 1:num_users
-       
-       if R(i, j) == 1
-            dX(i, :) = sum((X(i, :)*Th(j, :)' - Y(i, j)) * X(i, :)); 
-            dTh(j, :) = sum((X(i, :)*Th(j, :)' - Y(i, j)) * Th(j, :));
-       end
-       
-   end
-end
+% X_grad =     sum(sum(  (R.*(X*Theta') - Y) .* X  ));
+% Theta_grad = sum(sum(  (R.*(X*Theta') - Y) .* Theta  ));
 
-dX
-dTh
-
-% X_grad =     sum(sum(  (R.*(X*Theta') - Y) .* (R.*X)  ));
-% Theta_grad = sum(sum(  (R.*(X*Theta') - Y) .* (R.*Theta)  ));
+dX =  ((X*Th' - Y).*R) * Th + lambda*X;
+dTh = ((X*Th' - Y).*R)' * X + lambda*Th;
 
 % =============================================================
 
